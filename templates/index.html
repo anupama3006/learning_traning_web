@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Organization Training Submission</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f4f6f9 url('https://www.transparenttextures.com/patterns/white-wall.png');
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .banner {
+        width: 100%;
+        max-height: 300px;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        margin-bottom: 2rem;
+      }
+      
+    .card {
+      border-radius: 1rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+    }
+    .header-title {
+      color: #003f5c;
+    }
+    .form-section-title {
+      color: #2f4b7c;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+    }
+    .form-label {
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: linear-gradient(to right, #2f4b7c, #3b5998);
+      border: none;
+    }
+    .btn-outline-primary {
+      border: 2px solid #2f4b7c;
+      color: #2f4b7c;
+      font-weight: 500;
+    }
+    .btn-outline-primary:hover {
+      background-color: #2f4b7c;
+      color: #fff;
+    }
+    .toast-container {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      z-index: 9999;
+    }
+    .table th, .table td {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .form-section-title i {
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-4">
+    <img src="https://images.unsplash.com/photo-1560264280-88b68371db39?auto=format&fit=crop&w=1500&q=80" class="banner" alt="Team Collaboration" />
+
+    <div class="card p-4">
+      <h2 class="text-center header-title mb-4">
+        <i class="bi bi-building me-2"></i>Organization Training Data Submission
+      </h2>
+
+      <form id="trainingForm">
+        <div class="mb-3 row">
+          <div class="col-md-4">
+            <label for="companyId" class="form-label">Company ID</label>
+            <input type="number" class="form-control" id="companyId" name="companyId" required>
+          </div>
+          <div class="col-md-4">
+            <label for="inss" class="form-label">Employee INSS</label>
+            <input type="number" class="form-control" id="inss" name="inss" required>
+          </div>
+          <div class="col-md-4">
+            <label for="calendarYear" class="form-label">Calendar Year</label>
+            <input type="number" class="form-control" id="calendarYear" name="calendarYear" required>
+          </div>
+        </div>
+
+        <h5 class="form-section-title mt-4"><i class="bi bi-mortarboard-fill"></i> Training Information</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Denomination</label>
+            <input type="text" class="form-control" id="trainingDenomination" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="trainingFirstStartDate" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">End Date</label>
+            <input type="date" class="form-control" id="trainingLastEndDate" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Hours</label>
+            <input type="number" class="form-control" id="trainingHours" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Status</label>
+            <input type="text" class="form-control" id="trainingStatus" required>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Type</label>
+            <input type="text" class="form-control" id="trainingType" required>
+          </div>
+          <div class="col-12">
+            <button type="button" class="btn btn-outline-primary w-100" id="addTraining">
+              <i class="bi bi-plus-circle"></i> Add Training
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 mt-4">
+          <i class="bi bi-send-check-fill"></i> Submit All Data
+        </button>
+      </form>
+
+      <div class="mt-5">
+        <h5 class="form-section-title"><i class="bi bi-people-fill"></i> Trainings by Employee</h5>
+        <div id="userTrainingList" class="accordion mt-3"></div>
+      </div>      
+    </div>
+  </div>
+
+  <div class="toast-container">
+    <div id="toast" class="toast align-items-center text-white bg-success border-0" role="alert">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">Action completed successfully.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let groupedTrainings = {};
+  
+    const showToast = (msg, isError = false) => {
+      const toastEl = document.getElementById("toast");
+      toastEl.classList.remove("bg-success", "bg-danger");
+      toastEl.classList.add(isError ? "bg-danger" : "bg-success");
+      document.getElementById("toastMsg").textContent = msg;
+      new bootstrap.Toast(toastEl).show();
+    };
+  
+    document.getElementById("addTraining").addEventListener("click", () => {
+      const inss = document.getElementById("inss").value;
+      if (!inss) {
+        return showToast("Please enter Employee INSS first.", true);
+      }
+  
+      const training = {
+        denomination: document.getElementById("trainingDenomination").value,
+        startDate: document.getElementById("trainingFirstStartDate").value,
+        endDate: document.getElementById("trainingLastEndDate").value,
+        hours: document.getElementById("trainingHours").value,
+        status: document.getElementById("trainingStatus").value,
+        type: document.getElementById("trainingType").value,
+      };
+  
+      if (Object.values(training).some(val => !val)) {
+        return showToast("Please fill all training fields", true);
+      }
+  
+      if (!groupedTrainings[inss]) {
+        groupedTrainings[inss] = [];
+      }
+  
+      groupedTrainings[inss].push(training);
+      updateGroupedTable();
+      clearFields();
+      showToast("Training added successfully");
+    });
+  
+    function updateGroupedTable() {
+      const container = document.getElementById("userTrainingList");
+      container.innerHTML = "";
+  
+      Object.keys(groupedTrainings).forEach((inss, index) => {
+        const trainings = groupedTrainings[inss];
+        const collapseId = `collapse-${index}`;
+  
+        const tableRows = trainings.map(t => `
+          <tr>
+            <td>${t.denomination}</td>
+            <td>${t.startDate}</td>
+            <td>${t.endDate}</td>
+            <td>${t.hours}</td>
+            <td>${t.status}</td>
+            <td>${t.type}</td>
+          </tr>
+        `).join("");
+  
+        const accordionItem = `
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-${index}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}">
+                Employee INSS: ${inss}
+              </button>
+            </h2>
+            <div id="${collapseId}" class="accordion-collapse collapse" data-bs-parent="#userTrainingList">
+              <div class="accordion-body">
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Denomination</th>
+                      <th>Start</th>
+                      <th>End</th>
+                      <th>Hours</th>
+                      <th>Status</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>${tableRows}</tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        `;
+  
+        container.innerHTML += accordionItem;
+      });
+    }
+  
+    function clearFields() {
+      ["trainingDenomination", "trainingFirstStartDate", "trainingLastEndDate", "trainingHours", "trainingStatus", "trainingType"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+    }
+  
+    document.getElementById("trainingForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const inss = formData.get("inss");
+      const payload = {
+        employer: { companyId: parseInt(formData.get("companyId")) },
+        employee: { inss: parseInt(inss) },
+        calendarYear: parseInt(formData.get("calendarYear")),
+        trainings: groupedTrainings[inss] || []
+      };
+  
+      try {
+        const response = await fetch("http://127.0.0.1:5000/api/trainings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        console.log('Payload being sent:', payload); // Log the payload
+
+        if (!response.ok) throw new Error("Failed to submit data");
+        showToast("Data submitted successfully");
+        this.reset();
+        delete groupedTrainings[inss];
+        updateGroupedTable();
+      } catch (err) {
+        showToast(err.message, true);
+      }
+    });
+    
+  </script>
+  
+</body>
+</html>
